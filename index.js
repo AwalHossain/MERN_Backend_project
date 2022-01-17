@@ -4,7 +4,9 @@ const errorMiddleware = require("./middleware/error");
 const port = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+var cors = require("cors");
 
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 

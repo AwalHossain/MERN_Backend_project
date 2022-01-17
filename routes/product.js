@@ -45,8 +45,6 @@ router.get(
 
 router.get(
   "/allProduct",
-  isAuthenticatedUser,
-  authrizeRoles("admin"),
   catchAsyncErrors(async (req, res, next) => {
     const resultPerPage = 5;
     const productionCount = await Category.countDocuments();
