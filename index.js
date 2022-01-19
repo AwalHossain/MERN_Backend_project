@@ -5,10 +5,15 @@ const port = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 var cors = require("cors");
+const cloudinary = require("cloudinary");
+const bodyParser = require("body-parser");
+const fileUpload = require("express-fileupload");
 
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(fileUpload());
 
 app.get("/", (req, res) => {
   res.send("kalalmi honda");
@@ -36,6 +41,12 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then((data) => console.log(`Mongodb is connected  `));
 // connectDB();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 //Router
 app.use("/api", productRoute);

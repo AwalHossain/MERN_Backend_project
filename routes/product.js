@@ -28,7 +28,6 @@ router.post(
 
 router.get(
   "/singleProduct/:id",
-  isAuthenticatedUser,
   catchAsyncErrors(async (req, res, next) => {
     const product = await Category.findById(req.params.id);
     if (!product) {
@@ -46,20 +45,27 @@ router.get(
 router.get(
   "/allProduct",
   catchAsyncErrors(async (req, res, next) => {
+    // return next(new ErrorHandler("This is testing error", 404));
     const resultPerPage = 5;
     const productionCount = await Category.countDocuments();
-    const apifeature = new Apifeature(Category.find(), req.query)
+    const apiFeature = new Apifeature(Category.find(), req.query)
       .search()
-      .filter()
-      .pagination(resultPerPage);
-    const products = await apifeature.query;
-    if (!products) {
-      return next(new ErrorHandler("Product noteee found", 404));
-    }
+      .filter();
+
+    let products = await apiFeature.query;
+
+    let filteredProductsCount = products.length;
+
+    apiFeature.pagination(resultPerPage);
+
+    products = await apiFeature.query.clone();
+
     res.status(200).json({
       success: true,
       products,
       productionCount,
+      resultPerPage,
+      filteredProductsCount,
     });
   })
 );

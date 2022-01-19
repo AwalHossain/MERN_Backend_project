@@ -6,18 +6,25 @@ const sendToken = require("../utils/jwtToken");
 const { isAuthenticatedUser, authrizeRoles } = require("../middleware/auth");
 const sendEmail = require("../middleware/sendEmail");
 const crypto = require("crypto");
+const cloudinary = require("cloudinary");
 
 router.post(
   "/registerUser",
   catchAsyncErrors(async (req, res, next) => {
+    const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+      folder: "avatars",
+      width: 150,
+      crop: "scale",
+    });
+
     const { name, email, password } = req.body;
     const user = await User.create({
       name,
       email,
       password,
       avatar: {
-        public_id: "this is simple id",
-        url: "profileUrl",
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
       },
     });
     sendToken(user, 201, res);
@@ -48,7 +55,24 @@ router.post(
       return next(new ErrorHandler("Invalid  password", 401));
     }
 
-    sendToken(user, 200, res);
+    const token = user.getJWTToken();
+    console.log(token);
+
+    //option for cookie
+    const options = {
+      expires: new Date(
+        Date.now + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      ),
+      httpOnly: false,
+    };
+
+    res.cookie("vadsf", "GeeksforGeeks");
+
+    res.status(200).send({
+      success: true,
+      user,
+      token,
+    });
   })
 );
 
